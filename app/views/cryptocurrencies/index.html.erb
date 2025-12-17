@@ -1,0 +1,58 @@
+<div class="container mx-auto px-4 py-8">
+  <div class="flex items-center justify-between mb-8">
+    <h1 class="text-4xl font-bold text-white">Cryptocurrency Markets</h1>
+    <%= form_with url: cryptocurrencies_path, method: :get, local: true, class: "flex gap-2" do |f| %>
+      <%= f.text_field :search, value: @search, placeholder: "Search by symbol or name...", class: "px-4 py-2 bg-slate-800 border border-purple-500/30 rounded-lg text-white focus:outline-none focus:border-purple-500" %>
+      <%= f.submit "Search", class: "px-6 py-2 bg-purple-600 hover:bg-purple-700 rounded-lg transition" %>
+    <% end %>
+  </div>
+
+  <div class="bg-slate-800/50 backdrop-blur-sm border border-purple-500/20 rounded-lg overflow-hidden">
+    <table class="w-full">
+      <thead class="bg-slate-900/50">
+        <tr>
+          <th class="px-6 py-4 text-left text-gray-400 font-semibold">#</th>
+          <th class="px-6 py-4 text-left text-gray-400 font-semibold">Coin</th>
+          <th class="px-6 py-4 text-right text-gray-400 font-semibold">Price</th>
+          <th class="px-6 py-4 text-right text-gray-400 font-semibold">24h Change</th>
+          <th class="px-6 py-4 text-right text-gray-400 font-semibold">Market Cap</th>
+          <th class="px-6 py-4 text-right text-gray-400 font-semibold">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @cryptocurrencies.each_with_index do |crypto, index| %>
+          <tr class="border-t border-purple-500/10 hover:bg-slate-900/50 transition">
+            <td class="px-6 py-4 text-gray-400"><%= index + 1 %></td>
+            <td class="px-6 py-4">
+              <div class="flex items-center">
+                <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white font-bold mr-3">
+                  <%= crypto.symbol[0] %>
+                </div>
+                <div>
+                  <p class="font-bold text-white"><%= crypto.symbol %></p>
+                  <p class="text-sm text-gray-400"><%= crypto.name %></p>
+                </div>
+              </div>
+            </td>
+            <td class="px-6 py-4 text-right">
+              <p class="font-semibold text-white"><%= crypto.formatted_price %></p>
+            </td>
+            <td class="px-6 py-4 text-right">
+              <span class="<%= crypto.price_change_color %> font-semibold">
+                <%= crypto.price_change_percentage_24h&.positive? ? '+' : '' %><%= crypto.price_change_percentage_24h&.round(2) %>%
+              </span>
+            </td>
+            <td class="px-6 py-4 text-right text-gray-300"><%= crypto.formatted_market_cap %></td>
+            <td class="px-6 py-4 text-right">
+              <%= link_to "View", cryptocurrency_path(crypto), class: "px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded-lg transition text-sm" %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="mt-6 flex justify-center">
+    <%= paginate @cryptocurrencies %>
+  </div>
+</div>

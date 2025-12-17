@@ -1,0 +1,86 @@
+<div class="container mx-auto px-4 py-8">
+  <h1 class="text-4xl font-bold text-white mb-8">My Portfolio</h1>
+
+  <!-- Portfolio Summary Cards -->
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+    <div class="bg-gradient-to-br from-purple-600/20 to-pink-600/20 border border-purple-500/30 rounded-lg p-6 backdrop-blur-sm">
+      <p class="text-gray-400 mb-2">Total Value</p>
+      <p class="text-3xl font-bold text-white">$<%= number_with_delimiter(@portfolio.total_value.round(2)) %></p>
+    </div>
+    <div class="bg-gradient-to-br from-blue-600/20 to-cyan-600/20 border border-blue-500/30 rounded-lg p-6 backdrop-blur-sm">
+      <p class="text-gray-400 mb-2">Total Invested</p>
+      <p class="text-3xl font-bold text-white">$<%= number_with_delimiter(@portfolio.total_invested.round(2)) %></p>
+    </div>
+    <div class="bg-gradient-to-br <%= @portfolio.total_profit_loss >= 0 ? 'from-green-600/20 to-emerald-600/20 border-green-500/30' : 'from-red-600/20 to-rose-600/20 border-red-500/30' %> rounded-lg p-6 backdrop-blur-sm border">
+      <p class="text-gray-400 mb-2">Total P/L</p>
+      <p class="text-3xl font-bold text-white">
+        <%= @portfolio.total_profit_loss >= 0 ? '+' : '' %>$<%= number_with_delimiter(@portfolio.total_profit_loss.round(2)) %>
+      </p>
+    </div>
+    <div class="bg-gradient-to-br from-yellow-600/20 to-orange-600/20 border border-yellow-500/30 rounded-lg p-6 backdrop-blur-sm">
+      <p class="text-gray-400 mb-2">P/L %</p>
+      <p class="text-3xl font-bold <%= @portfolio.profit_loss_percentage >= 0 ? 'text-green-400' : 'text-red-400' %>">
+        <%= @portfolio.profit_loss_percentage >= 0 ? '+' : '' %><%= @portfolio.profit_loss_percentage %>%
+      </p>
+    </div>
+  </div>
+
+  <!-- Holdings Table -->
+  <div class="bg-slate-800/50 backdrop-blur-sm border border-purple-500/20 rounded-lg overflow-hidden">
+    <div class="p-6 border-b border-purple-500/20">
+      <h2 class="text-2xl font-bold text-white">Your Holdings</h2>
+    </div>
+    <% if @portfolio_items.any? %>
+      <table class="w-full">
+        <thead class="bg-slate-900/50">
+          <tr>
+            <th class="px-6 py-4 text-left text-gray-400 font-semibold">Cryptocurrency</th>
+            <th class="px-6 py-4 text-right text-gray-400 font-semibold">Quantity</th>
+            <th class="px-6 py-4 text-right text-gray-400 font-semibold">Avg. Price</th>
+            <th class="px-6 py-4 text-right text-gray-400 font-semibold">Current Price</th>
+            <th class="px-6 py-4 text-right text-gray-400 font-semibold">Current Value</th>
+            <th class="px-6 py-4 text-right text-gray-400 font-semibold">P/L</th>
+            <th class="px-6 py-4 text-right text-gray-400 font-semibold">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @portfolio_items.each do |item| %>
+            <tr class="border-t border-purple-500/10 hover:bg-slate-900/50 transition">
+              <td class="px-6 py-4">
+                <div class="flex items-center">
+                  <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white font-bold mr-3">
+                    <%= item.cryptocurrency.symbol[0] %>
+                  </div>
+                  <div>
+                    <p class="font-bold text-white"><%= item.cryptocurrency.symbol %></p>
+                    <p class="text-sm text-gray-400"><%= item.cryptocurrency.name %></p>
+                  </div>
+                </div>
+              </td>
+              <td class="px-6 py-4 text-right text-gray-300"><%= item.quantity.round(8) %></td>
+              <td class="px-6 py-4 text-right text-gray-300">$<%= number_with_delimiter(item.average_price.round(2)) %></td>
+              <td class="px-6 py-4 text-right text-white font-semibold"><%= item.cryptocurrency.formatted_price %></td>
+              <td class="px-6 py-4 text-right text-white font-semibold">$<%= number_with_delimiter(item.current_value.round(2)) %></td>
+              <td class="px-6 py-4 text-right">
+                <p class="font-semibold <%= item.profit_loss >= 0 ? 'text-green-400' : 'text-red-400' %>">
+                  <%= item.profit_loss >= 0 ? '+' : '' %>$<%= number_with_delimiter(item.profit_loss.round(2)) %>
+                </p>
+                <p class="text-sm <%= item.profit_loss_percentage >= 0 ? 'text-green-400' : 'text-red-400' %>">
+                  (<%= item.profit_loss_percentage >= 0 ? '+' : '' %><%= item.profit_loss_percentage %>%)
+                </p>
+              </td>
+              <td class="px-6 py-4 text-right">
+                <%= link_to "View", cryptocurrency_path(item.cryptocurrency.symbol), class: "px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded-lg transition text-sm" %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    <% else %>
+      <div class="p-12 text-center">
+        <p class="text-gray-400 mb-4">Your portfolio is empty.</p>
+        <%= link_to "Add Your First Transaction", new_transaction_path, class: "inline-block px-6 py-3 bg-purple-600 hover:bg-purple-700 rounded-lg font-semibold transition" %>
+      </div>
+    <% end %>
+  </div>
+</div>
