@@ -1,0 +1,106 @@
+<div class="container mx-auto px-4 py-8">
+  <div class="mb-6">
+    <%= link_to "← Back to Markets", cryptocurrencies_path, class: "text-purple-400 hover:text-purple-300 transition" %>
+  </div>
+
+  <div class="bg-slate-800/50 backdrop-blur-sm border border-purple-500/20 rounded-lg p-8 mb-6">
+    <div class="flex items-center justify-between mb-6">
+      <div>
+        <h1 class="text-4xl font-bold text-white mb-2"><%= @cryptocurrency.name %></h1>
+        <p class="text-2xl text-gray-400"><%= @cryptocurrency.symbol %></p>
+      </div>
+      <div class="text-right">
+        <p class="text-4xl font-bold text-white mb-2"><%= @cryptocurrency.formatted_price %></p>
+        <p class="text-lg <%= @cryptocurrency.price_change_color %>">
+          <%= @cryptocurrency.price_change_percentage_24h&.positive? ? '+' : '' %><%= @cryptocurrency.price_change_percentage_24h&.round(2) %>%
+        </p>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div class="bg-slate-900/50 rounded-lg p-4">
+        <p class="text-gray-400 text-sm mb-1">Market Cap</p>
+        <p class="text-xl font-semibold text-white"><%= @cryptocurrency.formatted_market_cap %></p>
+      </div>
+      <div class="bg-slate-900/50 rounded-lg p-4">
+        <p class="text-gray-400 text-sm mb-1">24h Volume</p>
+        <p class="text-xl font-semibold text-white">$<%= number_with_delimiter((@cryptocurrency.volume_24h / 1_000_000_000).round(2)) %>B</p>
+      </div>
+      <div class="bg-slate-900/50 rounded-lg p-4">
+        <p class="text-gray-400 text-sm mb-1">24h Change</p>
+        <p class="text-xl font-semibold <%= @cryptocurrency.price_change_color %>">
+          <%= @cryptocurrency.price_change_percentage_24h&.positive? ? '+' : '' %><%= @cryptocurrency.price_change_percentage_24h&.round(2) %>%
+        </p>
+      </div>
+      <div class="bg-slate-900/50 rounded-lg p-4">
+        <p class="text-gray-400 text-sm mb-1">Price Change</p>
+        <p class="text-xl font-semibold <%= @cryptocurrency.price_change_color %>">
+          $<%= number_with_delimiter(@cryptocurrency.price_change_24h.round(2)) %>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <!-- Your Holdings -->
+    <% if @portfolio_item %>
+      <div class="bg-slate-800/50 backdrop-blur-sm border border-purple-500/20 rounded-lg p-6">
+        <h2 class="text-2xl font-bold text-white mb-4">Your Holdings</h2>
+        <div class="space-y-4">
+          <div class="bg-slate-900/50 rounded-lg p-4">
+            <p class="text-gray-400 mb-2">Quantity</p>
+            <p class="text-2xl font-bold text-white"><%= @portfolio_item.quantity.round(8) %> <%= @cryptocurrency.symbol %></p>
+          </div>
+          <div class="bg-slate-900/50 rounded-lg p-4">
+            <p class="text-gray-400 mb-2">Average Price</p>
+            <p class="text-2xl font-bold text-white">$<%= number_with_delimiter(@portfolio_item.average_price.round(2)) %></p>
+          </div>
+          <div class="bg-slate-900/50 rounded-lg p-4">
+            <p class="text-gray-400 mb-2">Current Value</p>
+            <p class="text-2xl font-bold text-white">$<%= number_with_delimiter(@portfolio_item.current_value.round(2)) %></p>
+          </div>
+          <div class="bg-slate-900/50 rounded-lg p-4">
+            <p class="text-gray-400 mb-2">Profit/Loss</p>
+            <p class="text-2xl font-bold <%= @portfolio_item.profit_loss >= 0 ? 'text-green-400' : 'text-red-400' %>">
+              <%= @portfolio_item.profit_loss >= 0 ? '+' : '' %>$<%= number_with_delimiter(@portfolio_item.profit_loss.round(2)) %>
+              (<%= @portfolio_item.profit_loss_percentage %>%)
+            </p>
+          </div>
+        </div>
+      </div>
+    <% end %>
+
+    <!-- Quick Actions -->
+    <div class="bg-slate-800/50 backdrop-blur-sm border border-purple-500/20 rounded-lg p-6">
+      <h2 class="text-2xl font-bold text-white mb-4">Quick Actions</h2>
+      <div class="space-y-3">
+        <%= link_to "Buy #{@cryptocurrency.symbol}", new_transaction_path(crypto_id: @cryptocurrency.id, type: 'buy'), class: "block w-full px-6 py-3 bg-green-600 hover:bg-green-700 rounded-lg text-center font-semibold transition" %>
+        <%= link_to "Sell #{@cryptocurrency.symbol}", new_transaction_path(crypto_id: @cryptocurrency.id, type: 'sell'), class: "block w-full px-6 py-3 bg-red-600 hover:bg-red-700 rounded-lg text-center font-semibold transition" %>
+        <%= link_to "Set Price Alert", price_alerts_path(crypto_id: @cryptocurrency.id), class: "block w-full px-6 py-3 bg-purple-600 hover:bg-purple-700 rounded-lg text-center font-semibold transition" %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Transactions -->
+  <% if @recent_transactions.any? %>
+    <div class="mt-6 bg-slate-800/50 backdrop-blur-sm border border-purple-500/20 rounded-lg p-6">
+      <h2 class="text-2xl font-bold text-white mb-4">Your Recent Transactions</h2>
+      <div class="space-y-3">
+        <% @recent_transactions.each do |transaction| %>
+          <div class="flex items-center justify-between p-4 bg-slate-900/50 rounded-lg">
+            <div>
+              <p class="font-semibold text-white">
+                <%= transaction.transaction_type.capitalize %> <%= transaction.quantity.round(8) %> <%= @cryptocurrency.symbol %>
+              </p>
+              <p class="text-sm text-gray-400"><%= transaction.created_at.strftime('%b %d, %Y %I:%M %p') %></p>
+            </div>
+            <div class="text-right">
+              <p class="font-semibold text-white">$<%= number_with_delimiter(transaction.total_amount.round(2)) %></p>
+              <p class="text-sm text-gray-400">@ $<%= transaction.price.round(2) %></p>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+</div>

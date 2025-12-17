@@ -1,0 +1,13 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  portfolio: one
+  cryptocurrency: one
+  quantity: 9.99
+  average_price: 9.99
+
+two:
+  portfolio: two
+  cryptocurrency: two
+  quantity: 9.99
+  average_price: 9.99
